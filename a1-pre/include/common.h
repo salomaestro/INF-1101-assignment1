@@ -24,4 +24,11 @@ typedef int (*cmpfunc_t)(void *, void *);
  */
 void tokenize_file(FILE *file, struct list *list);
 
+/* 
+ * Takes two char arguments and compares them.
+ * Returns -1 if the first is smaller than the second, 1
+ * if the second is smaller than the first, and 0 if
+ * they are equal.
+ */
+int compare_char(void *arg1, void* arg2);
 #endif
