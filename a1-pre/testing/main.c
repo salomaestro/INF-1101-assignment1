@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "main.h"
 
-typedef int (*cmpfunc_t)(void *, void *);
-
-typedef struct list_node list_node_t;
 typedef struct list_node
 {
     void *elem;
@@ -12,7 +10,6 @@ typedef struct list_node
     list_node_t *prev;
 } list_node_t;
 
-typedef struct list list_t;
 typedef struct list
 {
     list_node_t *head;
@@ -52,6 +49,26 @@ list_t *list_create(cmpfunc_t cmpfunc) {
     list->head = head;
 
     return list;
+}
+
+list_t *list_copy(list_t *list)
+{
+    list_t *copy = list_create(list->cmpfunc);
+    list_node_t *current = list->head;
+    
+    while (current)
+    {
+        int status = list_addlast(copy, current->elem);
+        
+        if (!status)
+        {
+            break;
+        }
+        
+        current = current->next;
+    }
+
+    return copy;
 }
 
 void list_destroy(list_t *list)
@@ -267,10 +284,49 @@ int list_contains(list_t *list, void *elem)
     return retval;
 }
 
-// void list_sort(list_t *list)
-// {
+void printne(char *s, list_node_t *node)
+{
+    printf("%s: %s\n", s, (char *)node->elem);
+}
 
-// }
+void list_nodeswap(list_node_t *node)
+{
+    /* Store adjacent nodes to the argument node. */
+    list_node_t *next = node->next;
+
+    void *elem = node->elem;
+    node->elem = next->elem;
+    next->elem = elem;
+}
+
+void list_sort(list_t *list)
+{
+    int size = list->size;
+
+    for (int step = 0; step < size -1 ; ++step)
+    {
+        list_node_t *current = list->head;
+        int sorted = 0;
+        for (int i = 0; i < size - step - 1; ++i)
+        {
+            list_node_t *prev = current->prev;
+            list_node_t *next = current->next;
+
+            const int cmpval = list->cmpfunc(current->elem, next->elem);
+
+            if (cmpval == 1)
+            {
+                list_nodeswap(current);
+                sorted = 1;
+            }
+            current = current->next;
+        }
+        if (!sorted){
+            break;
+        }
+        list_print(list);
+    }
+}
 
 
 void list_print(list_t *list)
@@ -298,7 +354,6 @@ void list_print(list_t *list)
     printf("%s]\n", (char*)current->elem);
 }
 
-typedef struct list_iter list_iter_t;
 typedef struct list_iter
 {
     list_t *list;
@@ -361,40 +416,28 @@ int compare_char(void *arg1, void *arg2)
 
 int main()
 {
-    char *w1 = "Hello";
-    char *w2 = "world";
-    char *w3 = "yaya";
-    char *w4 = "yeyeye";
-
+    char *w3 = "aa";
+    char *w2 = "ca";
+    char *w1 = "ab";
+    char *w4 = "ba";
+    char *w5 = "bb";
+    char *w6 = "cb";
 
     cmpfunc_t cmp = &compare_char;
 
     /* Create a list and test functions add last */
     list_t *my_list = list_create(cmp);
-    // list_print(my_list);
     printf("add last: %d\n", list_addlast(my_list, w1));
-    // list_print(my_list);
     printf("add last: %d\n", list_addlast(my_list, w2));
     printf("add last: %d\n", list_addlast(my_list, w3));
     printf("add last: %d\n", list_addlast(my_list, w4));
+    printf("add last: %d\n", list_addlast(my_list, w5));
+    printf("add last: %d\n", list_addlast(my_list, w6));
     list_print(my_list);
 
-    list_iter_t *iter = list_createiter(my_list);
-
-    while (list_hasnext(iter))
-    {
-        puts(list_next(iter));
-    }
-
-    // char *t1 = "Hello";
-    // char *t2 = "Hell0";
-    // char *t3 = "world";
-
-    // printf("%s is in list: %d\n", t1, list_contains(my_list, t1));
-    // printf("%s is in list: %d\n", t2, list_contains(my_list, t2));
-    // printf("%s is in list: %d\n", t3, list_contains(my_list, t3));
-
-    // list_destroy(my_list);
+    // list_nodeswap(my_list, my_list->head->next->next->next->next);
+    list_sort(my_list);
+    list_print(my_list);
 
     return 0;
 }
