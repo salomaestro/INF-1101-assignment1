@@ -21,3 +21,18 @@ void tokenize_file(FILE *file, list_t *list)
         }
     }
 }
+
+int compare_char(void *arg1, void *arg2)
+{
+    const int res = strcmp((char *)arg1, (char *)arg2);
+    if (res < 0)
+    {
+        return 1;
+    } else if (res > 0) 
+    {
+        return -1;
+    } else
+    {
+        return 0;
+    }
+}
