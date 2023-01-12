@@ -24,6 +24,11 @@ void tokenize_file(FILE *file, list_t *list)
 
 int compare_char(void *arg1, void *arg2)
 {
+    /* 
+     * Use string-library strcmp to compare strings 
+     * returns 0 if equal, >0 if first is greater than second
+     * <0 if first smaller than second.
+     */
     const int res = strcmp((char *)arg1, (char *)arg2);
     if (res < 0)
     {
