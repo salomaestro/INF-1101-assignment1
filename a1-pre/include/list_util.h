@@ -13,6 +13,12 @@ void list_nodeswap(list_node_t *node);
 /* 
  * Print the (char *) elements of the given list.
  */
-void list_print(list_t *list);
+void list_print(list_t *list, int brackets, char *sep);
+
+/* 
+ * Reverse the given list.
+ * Implementation inspired by: https://gist.github.com/icheishvili/4190607#file-list-c-L149-L160
+ */
+void list_reverse(list_t *list);
 
 #endif
