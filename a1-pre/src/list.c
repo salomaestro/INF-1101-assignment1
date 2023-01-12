@@ -16,7 +16,7 @@ typedef struct list
 {
     list_node_t *head;
     cmpfunc_t cmpfunc;
-    int size;
+    size_t size;
 } list_t;
 
 /* Creates a node which preferably lives inside a list. */
@@ -278,37 +278,79 @@ void list_nodeswap(list_node_t *node)
 
 void list_sort(list_t *list)
 {
-    int size = list->size;
+    /* 
+     * This implementation is pretty basic and use what I think is
+     * a pretty common approach of assuming each entry of the list
+     * needs to move and is given one try traversing the list. This
+     * is the outer loop. Then an inner loop handles the traversing.
+     * Although each entry is given one try each element is compared
+     * in every inner loop. 
+     * To save some computations if the inner loop does not change
+     * the position of any entries, we terminate the function as this
+     * would indicate there is nothing left to sort.
+     */
 
-    for (int step = 0; step < size -1 ; ++step)
+    const int size = list->size;
+
+    /* Outer loop. */
+    for (int try = 0; try < size - 1 ; ++try)
     {
+        /* Each iteration of outer loop start at the head node. */
         list_node_t *current = list->head;
+
+        /* 
+         * Variable that will terminate function if no nodes are
+         * swapped. 
+         */
         int sorted = 0;
 
-        for (int i = 0; i < size - step - 1; ++i)
+        /* 
+         * Inner loop.
+         * Each time a outer loop is completed we know that the
+         * number of tries correspond to how many (from the tail)
+         * is already sorted correctly, therefore there is no need
+         * to sort the last element sorted in the previous try.
+         */
+        for (int i = 0; i < size - try - 1; ++i)
         {
-            list_node_t *prev = current->prev;
+            /* Initialize next node */
             list_node_t *next = current->next;
 
+            /* Get the compared value produced by the list' compare func. */
             const int cmpval = list->cmpfunc(current->elem, next->elem);
 
+            /* 
+             * Here we could implement an alternative to the reverse 
+             * sorting algorithm in 'reverseword.c' by instead using
+             * cmpval == -1. 
+             */
             if (cmpval == 1)
             {
+                /* Perform a node swap if criteria met. */
                 list_nodeswap(current);
+
+                /* Prevent early termination. */
                 sorted = 1;
             }
+
+            /* Increment to next node. */
             current = current->next;
         }
+        
+        /* 
+         * Break early if there is no changes between each list 
+         * traverse.
+         */
         if (!sorted){
             break;
         }
-        list_print(list);
     }
 }
 
-void list_print(list_t *list)
+void list_print(list_t *list, int brackets, char *sep)
 {
     list_node_t *current = list->head;
+    char *default_sep = ", ";
 
     if (current == NULL)
     {
@@ -316,19 +358,55 @@ void list_print(list_t *list)
         exit(0);
     }
 
-    /* For indicating list I like to use regular square brackets. */
-    printf("[");
+    /* If brackets = 1 use brackets */
+    printf(brackets ? "[" : "");
 
     /* Iterate till last node */
     while (current->next != NULL)
     {
         /* Because elem is a void pointer type-cast it to a string. */
-        printf("%s, ", (char*)current->elem);
+        printf("%s", (char*)current->elem);
         current = current->next;
+
+        !strcmp(default_sep, sep) ? printf("%s", default_sep) : printf("%s", sep);
     }
 
     /* Print last element */
-    printf("%s]\n", (char*)current->elem);
+    printf("%s", (char*)current->elem);
+
+    /* If brackets = 1 use brackets */
+    printf(brackets ? "]\n" : "\n");
+}
+
+void list_reverse(list_t *list)
+{
+    /* Initialize nodes */
+    list_node_t *current, *prev, *next;
+    prev = NULL;
+
+    /* 
+     * Set current to list' head, test expr in for loop is eqivalent
+     * to while (current !=NULL) and increment by current = next
+     */
+    for (current=list->head; current; current = next) {
+
+        /* Store current nodes original next pointer. */
+        next = current->next;
+
+        /* 
+         * Modify current nodes next pointer to point 
+         * in opposite direction.
+         */
+        current->next = prev;
+
+        /* Set the previous node to be current before incrementing. */
+        prev = current;
+    }
+
+    /* Before terminating set head of list to be the last node in
+     * input list.
+     */
+    list->head = prev;
 }
 
 typedef struct list_iter
