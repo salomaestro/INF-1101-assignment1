@@ -7,18 +7,25 @@ int main(int argc, char **argv)
 {
     for (int i = 1; i<argc; ++i)
     {
+        /* Set filename. */
         char *filename = argv[i];
 
-        printf("%d\n", i);
-
+        /* Create a list with the compare_char function. */
         list_t *list = list_create(compare_char);
 
-        printf("start tokenizing %s\n", filename);
-        tokenize_file((FILE *)filename, list);
-        printf("end tokenizing %s\n", filename);
-        
-        printf("begin printing");
-        list_print(list);
+        /* Open file object. */
+        FILE *inp = fopen(filename, "r");
+
+        /* Tokenize file. */
+        tokenize_file(inp, list);
+
+        /* Close */
+        fclose(inp);
+
+        /* Sort and print list. */
+        list_sort(list);
+        list_print(list, 0, " ");
     }
+
     return 0;
 }
