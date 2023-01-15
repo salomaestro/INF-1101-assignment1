@@ -15,6 +15,7 @@ typedef struct list_node
 typedef struct list
 {
     list_node_t *head;
+    list_node_t *last;
     cmpfunc_t cmpfunc;
     size_t size;
 } list_t;
@@ -168,6 +169,9 @@ int list_addlast(list_t *list, void *elem)
     
     /* Set next of last node to the new node. */
     current->next = new_node;
+    
+    /* Set the new node to be the last node of the list */
+    list->last = new_node;
 
     /* Set the prev of the new node as the formerly last node. */
     new_node->prev = current;
@@ -231,6 +235,11 @@ void *list_poplast(list_t *list)
      * have any nodes pointing to it anymore. 
      */
     current->next = NULL;
+
+    /*
+     * Update last node to be the new last node.
+     */
+    list->last = current;
 
     /* Reduce list size. */
     --list->size;
